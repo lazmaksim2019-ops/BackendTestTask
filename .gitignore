@@ -21,5 +21,9 @@ logs/*.log
 .DS_Store
 Thumbs.db
 
+# Coverage
+.coverage
+coverage.xml
+
 # Docker
 .postgres-data/
