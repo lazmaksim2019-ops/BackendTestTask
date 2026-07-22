@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"></head>
+<body style="font-family: sans-serif; padding: 20px;">
+  <h2>New Contact Message</h2>
+  <table style="border-collapse: collapse;">
+    <tr><td style="padding: 8px; font-weight: bold;">Name:</td><td style="padding: 8px;">{{ contact.name }}</td></tr>
+    <tr><td style="padding: 8px; font-weight: bold;">Email:</td><td style="padding: 8px;">{{ contact.email }}</td></tr>
+    <tr><td style="padding: 8px; font-weight: bold;">Phone:</td><td style="padding: 8px;">{{ contact.phone }}</td></tr>
+  </table>
+  <h3>Message:</h3>
+  <p style="background: #f5f5f5; padding: 12px; border-radius: 4px;">{{ contact.comment }}</p>
+  <hr>
+  <h3>AI Analysis</h3>
+  <ul>
+    <li><strong>Sentiment:</strong> {{ ai.sentiment }} (score: {{ ai.sentiment_score }})</li>
+    <li><strong>Request Type:</strong> {{ ai.request_type }}</li>
+  </ul>
+  <h4>Suggested Reply:</h4>
+  <p style="background: #e8f5e9; padding: 12px; border-radius: 4px;">{{ ai.suggested_reply }}</p>
+</body>
+</html>

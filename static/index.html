@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact Me</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f172a; color: #e2e8f0; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+    .card { background: #1e293b; border-radius: 16px; padding: 40px; width: 100%; max-width: 520px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); }
+    h1 { font-size: 24px; margin-bottom: 8px; }
+    .subtitle { color: #94a3b8; margin-bottom: 28px; font-size: 14px; }
+    .form-group { margin-bottom: 18px; }
+    label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: #cbd5e1; }
+    input, textarea { width: 100%; padding: 10px 14px; background: #0f172a; border: 1px solid #334155; border-radius: 8px; color: #e2e8f0; font-size: 14px; transition: border-color 0.2s; }
+    input:focus, textarea:focus { outline: none; border-color: #3b82f6; }
+    textarea { resize: vertical; min-height: 100px; }
+    button { width: 100%; padding: 12px; background: #3b82f6; color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+    button:hover { background: #2563eb; }
+    button:disabled { opacity: 0.6; cursor: not-allowed; }
+    .error { color: #f87171; font-size: 12px; margin-top: 4px; display: none; }
+    .result { margin-top: 24px; padding: 16px; border-radius: 8px; display: none; }
+    .result.success { background: #064e3b; border: 1px solid #059669; display: block; }
+    .result.error { background: #450a0a; border: 1px solid #dc2626; display: block; }
+    .result h3 { font-size: 15px; margin-bottom: 8px; }
+    .result p { font-size: 13px; color: #94a3b8; }
+    .ai-tag { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; margin: 4px 4px 4px 0; }
+    .ai-tag.positive { background: #064e3b; color: #6ee7b7; }
+    .ai-tag.neutral { background: #1e3a5f; color: #93c5fd; }
+    .ai-tag.negative { background: #450a0a; color: #fca5a5; }
+    .spinner { display: none; width: 18px; height: 18px; border: 2px solid #475569; border-top-color: #3b82f6; border-radius: 50%; animation: spin 0.6s linear infinite; margin: 0 auto; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .btn-content { display: flex; align-items: center; justify-content: center; gap: 8px; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Get in Touch</h1>
+    <p class="subtitle">Send me a message — I'll reply within 24 hours</p>
+
+    <form id="contactForm">
+      <div class="form-group">
+        <label for="name">Name</label>
+        <input type="text" id="name" required minlength="1" maxlength="100">
+        <div class="error" id="nameError">Name is required</div>
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" required>
+        <div class="error" id="emailError">Valid email is required</div>
+      </div>
+
+      <div class="form-group">
+        <label for="phone">Phone</label>
+        <input type="text" id="phone" required minlength="5" maxlength="20">
+        <div class="error" id="phoneError">Phone is required</div>
+      </div>
+
+      <div class="form-group">
+        <label for="comment">Message</label>
+        <textarea id="comment" required minlength="1" maxlength="2000"></textarea>
+        <div class="error" id="commentError">Message is required</div>
+      </div>
+
+      <button type="submit">
+        <span class="btn-content">
+          <span id="btnText">Send Message</span>
+          <span class="spinner" id="spinner"></span>
+        </span>
+      </button>
+    </form>
+
+    <div class="result" id="result">
+      <h3 id="resultTitle"></h3>
+      <p id="resultMessage"></p>
+      <div id="aiAnalysis" style="margin-top: 12px;"></div>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById('contactForm');
+    const result = document.getElementById('result');
+    const resultTitle = document.getElementById('resultTitle');
+    const resultMessage = document.getElementById('resultMessage');
+    const aiAnalysis = document.getElementById('aiAnalysis');
+    const btnText = document.getElementById('btnText');
+    const spinner = document.getElementById('spinner');
+    const btn = form.querySelector('button');
+
+    function validateField(id, errorId) {
+      const field = document.getElementById(id);
+      const error = document.getElementById(errorId);
+      if (!field.checkValidity()) {
+        error.style.display = 'block';
+        field.style.borderColor = '#dc2626';
+        return false;
+      }
+      error.style.display = 'none';
+      field.style.borderColor = '#334155';
+      return true;
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const valid = ['name', 'email', 'phone', 'comment'].every(f => validateField(f, f + 'Error'));
+      if (!valid) return;
+
+      btn.disabled = true;
+      btnText.style.display = 'none';
+      spinner.style.display = 'block';
+      result.className = 'result';
+
+      try {
+        const res = await fetch('/api/v1/contact', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: document.getElementById('name').value,
+            email: document.getElementById('email').value,
+            phone: document.getElementById('phone').value,
+            comment: document.getElementById('comment').value,
+          }),
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+          result.className = 'result success';
+          resultTitle.textContent = 'Message Sent!';
+          resultMessage.textContent = data.message;
+
+          if (data.ai_analysis) {
+            const ai = data.ai_analysis;
+            const sentimentClass = ai.sentiment || 'neutral';
+            aiAnalysis.innerHTML = `
+              <hr style="border-color: #334155; margin: 12px 0;">
+              <p style="font-size: 12px; color: #94a3b8; margin-bottom: 6px;">AI Analysis</p>
+              <span class="ai-tag ${sentimentClass}">${ai.sentiment}</span>
+              <span class="ai-tag neutral">${ai.request_type}</span>
+              <p style="font-size: 12px; color: #94a3b8; margin-top: 8px;">Score: ${ai.sentiment_score}</p>
+            `;
+          }
+          form.reset();
+        } else {
+          result.className = 'result error';
+          resultTitle.textContent = 'Error';
+          resultMessage.textContent = data.detail || 'Something went wrong. Please try again.';
+          aiAnalysis.innerHTML = '';
+        }
+      } catch (err) {
+        result.className = 'result error';
+        resultTitle.textContent = 'Network Error';
+        resultMessage.textContent = 'Could not reach the server. Please try again.';
+        aiAnalysis.innerHTML = '';
+      }
+
+      btn.disabled = false;
+      btnText.style.display = 'inline';
+      spinner.style.display = 'none';
+    });
+
+    ['name', 'email', 'phone', 'comment'].forEach(f => {
+      document.getElementById(f).addEventListener('input', () => validateField(f, f + 'Error'));
+    });
+  </script>
+</body>
+</html>

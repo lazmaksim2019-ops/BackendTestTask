@@ -13,7 +13,7 @@ NEGATIVE_KEYWORDS = [
 
 TYPE_KEYWORDS: list[tuple[str, list[str]]] = [
     ("technical_question", ["как сделать", "how to", "помогите", "help", "question", "вопрос", "技术支持"]),
-    ("collaboration", ["сотрудничество", "collaboration", "предложение", "offer", "合作", "work together"]),
+    ("collaboration", ["сотрудничество", "collaboration", "collaborate", "предложение", "offer", "合作", "work together"]),
     ("bug_report", ["баг", "bug", "ошибка", "error", "не работает", "broken", "crash"]),
     ("feature_request", ["хотелось бы", "feature", "улучшение", "improvement", "idea", "идея", "建议"]),
 ]
