@@ -4,7 +4,6 @@ from app.services.ai_service import AIService
 from app.services.email_service import EmailService
 from app.repositories.contact_repository import ContactRepository
 from app.repositories.stats_repository import StatsRepository
-from fastapi import BackgroundTasks
 
 
 class ContactService:
@@ -24,18 +23,13 @@ class ContactService:
         self,
         data: ContactRequest,
         correlation_id: str,
-        background_tasks: BackgroundTasks,
     ) -> dict:
         ai_result = await self._ai.analyze(data.name, data.comment)
 
         contact_entry = await self._contact_repo.save(data, correlation_id)
 
-        background_tasks.add_task(
-            self._email.send_owner_notification, contact_entry, ai_result.model_dump()
-        )
-        background_tasks.add_task(
-            self._email.send_user_copy, contact_entry
-        )
+        await self._email.send_owner_notification(contact_entry, ai_result.model_dump())
+        await self._email.send_user_copy(contact_entry)
 
         await self._stats_repo.increment("total_contacts")
         await self._stats_repo.increment(f"type_{ai_result.request_type}")

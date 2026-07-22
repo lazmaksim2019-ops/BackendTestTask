@@ -2,6 +2,7 @@ import logging
 from pathlib import Path
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from app.core.config import settings
+from app.core.exceptions import EmailError
 
 logger = logging.getLogger("app.email")
 
@@ -26,7 +27,6 @@ class EmailService:
             self._log_email(
                 to=settings.app_owner_email,
                 subject=f"New contact from {contact_data['name']}",
-                data=contact_data,
             )
 
     async def send_user_copy(self, contact_data: dict) -> None:
@@ -41,7 +41,6 @@ class EmailService:
             self._log_email(
                 to=contact_data["email"],
                 subject="Copy of your message",
-                data=contact_data,
             )
 
     async def _send_via_smtp(self, to: str, subject: str, template: str, context: dict) -> None:
@@ -56,14 +55,18 @@ class EmailService:
         msg["Subject"] = subject
         msg.set_content(body, subtype="html")
 
-        await aiosmtplib.send(
-            msg,
-            hostname=settings.smtp_host,
-            port=settings.smtp_port,
-            username=settings.smtp_user,
-            password=settings.smtp_pass,
-            start_tls=True,
-        )
+        try:
+            await aiosmtplib.send(
+                msg,
+                hostname=settings.smtp_host,
+                port=settings.smtp_port,
+                username=settings.smtp_user,
+                password=settings.smtp_pass,
+                start_tls=True,
+            )
+        except Exception as e:
+            logger.exception("SMTP send failed: to=%s subject=%s", to, subject)
+            raise EmailError("Email service unavailable") from e
 
-    def _log_email(self, to: str, subject: str, data: dict) -> None:
-        logger.info("Email logged (SMTP not configured): to=%s subject=%s data=%s", to, subject, data)
+    def _log_email(self, to: str, subject: str) -> None:
+        logger.info("Email logged (SMTP not configured): to=%s subject=%s", to, subject)
