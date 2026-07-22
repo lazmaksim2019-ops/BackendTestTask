@@ -351,3 +351,10 @@ docker push ...
 ## Лицензия
 
 MIT
+
+## Автор
+
+**Александр Лазаренко** — Fullstack Developer (React + FastAPI + AI)
+
+[![Telegram](https://img.shields.io/badge/Telegram-26A5E4?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/lazalex81)
+[![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/lazmaksim2019-ops)
