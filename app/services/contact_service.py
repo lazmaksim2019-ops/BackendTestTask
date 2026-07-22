@@ -36,7 +36,7 @@ class ContactService:
 
         return {
             "success": True,
-            "message": "Your message has been received. We will get back to you shortly.",
+            "message": "Спасибо! Ваше сообщение получено. Мы свяжемся с вами в ближайшее время.",
             "correlation_id": correlation_id,
             "ai_analysis": ai_result.model_dump(),
         }

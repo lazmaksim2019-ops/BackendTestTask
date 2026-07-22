@@ -8,7 +8,7 @@ _DEFAULT_FALLBACK = AIAnalysisResult(
     sentiment="neutral",
     sentiment_score=0.0,
     request_type="general",
-    suggested_reply="Thank you for your message. We will contact you soon.",
+    suggested_reply="Спасибо за ваше сообщение. Мы свяжемся с вами в ближайшее время.",
 )
 
 

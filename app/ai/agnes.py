@@ -17,6 +17,7 @@ class AgnesAIStrategy(AIStrategy):
         self._client = AsyncOpenAI(
             api_key=settings.ai_api_key,
             base_url=settings.ai_api_base_url,
+            timeout=8.0,
         )
 
     async def analyze(self, name: str, comment: str) -> AIAnalysisResult:
