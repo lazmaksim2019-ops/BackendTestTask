@@ -1,6 +1,6 @@
 import logging
 from pathlib import Path
-from jinja2 import Environment, FileSystemLoader
+from jinja2 import Environment, FileSystemLoader, select_autoescape
 from app.core.config import settings
 
 logger = logging.getLogger("app.email")
@@ -9,7 +9,10 @@ logger = logging.getLogger("app.email")
 class EmailService:
     def __init__(self) -> None:
         templates_dir = Path(__file__).resolve().parent.parent / "templates"
-        self._env = Environment(loader=FileSystemLoader(str(templates_dir)))
+        self._env = Environment(
+            loader=FileSystemLoader(str(templates_dir)),
+            autoescape=select_autoescape(["html", "xml"]),
+        )
 
     async def send_owner_notification(self, contact_data: dict, ai_analysis: dict) -> None:
         if settings.smtp_host:

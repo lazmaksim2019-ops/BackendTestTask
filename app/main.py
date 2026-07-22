@@ -26,9 +26,10 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=settings.cors_origins_list,
+    allow_credentials=False,
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["Content-Type", "X-Requested-With"],
 )
 app.add_middleware(CorrelationIDMiddleware)
 app.add_middleware(RequestLoggingMiddleware)
@@ -39,5 +40,10 @@ app.add_exception_handler(Exception, global_error_handler)
 app.include_router(contact.router, prefix="/api/v1")
 app.include_router(health.router, prefix="/api/v1")
 app.include_router(metrics.router, prefix="/api/v1")
+
+# Routes without version prefix for direct TZ compliance
+app.include_router(contact.router, prefix="/api", include_in_schema=False)
+app.include_router(health.router, prefix="/api", include_in_schema=False)
+app.include_router(metrics.router, prefix="/api", include_in_schema=False)
 
 app.mount("/", StaticFiles(directory=str(settings.base_dir / "static"), html=True), name="static")

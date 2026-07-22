@@ -58,5 +58,6 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
                 return JSONResponse(
                     status_code=429,
                     content={"detail": e.detail},
+                    headers={"Retry-After": str(settings.rate_limit_window_seconds)},
                 )
         return await call_next(request)

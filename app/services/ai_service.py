@@ -4,6 +4,13 @@ from app.schemas.ai import AIAnalysisResult
 
 logger = logging.getLogger("app.ai")
 
+_DEFAULT_FALLBACK = AIAnalysisResult(
+    sentiment="neutral",
+    sentiment_score=0.0,
+    request_type="general",
+    suggested_reply="Thank you for your message. We will contact you soon.",
+)
+
 
 class AIService:
     def __init__(self, strategy: AIStrategy) -> None:
@@ -15,9 +22,14 @@ class AIService:
             logger.info("AI analysis successful: sentiment=%s type=%s", result.sentiment, result.request_type)
             return result
         except Exception as e:
-            logger.warning("AI strategy failed (%s), falling back to rule-based: %s", type(self._strategy).__name__, e)
+            logger.warning("AI strategy failed (%s): %s", type(self._strategy).__name__, e)
+
+        try:
             from app.ai.rule_based import RuleBasedAIStrategy
             fallback = RuleBasedAIStrategy()
             result = await fallback.analyze(name, comment)
             logger.info("Rule-based fallback completed")
             return result
+        except Exception as e:
+            logger.error("Rule-based fallback also failed: %s", e)
+            return _DEFAULT_FALLBACK

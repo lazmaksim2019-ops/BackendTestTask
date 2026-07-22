@@ -1,123 +1,132 @@
 # Backend Developer Landing API
 
-Full-cycle backend service for a developer landing page with AI integration, email notifications, rate limiting, and structured logging.
+Backend-сервис для лендинг-презентации разработчика с AI-интеграцией, email-уведомлениями, rate limiting и структурированным логированием.
+
+Живое демо: [ссылка на Render после деплоя]
 
 ---
 
-## Tech Stack
+## Стек технологий
 
-| Layer | Technology |
+| Слой | Технология |
 |---|---|
-| **Language** | Python 3.12 |
-| **Framework** | FastAPI (async) |
-| **Validation** | Pydantic v2 |
-| **AI Provider** | Agnes AI (OpenAI-compatible) + rule-based fallback |
-| **Templating** | Jinja2 (HTML emails) |
-| **Storage** | JSON files (contacts) + SQLite (rate limits, stats) |
-| **Testing** | pytest + httpx TestClient |
-| **Infra** | Docker / docker-compose |
+| **Язык** | Python 3.12 |
+| **Фреймворк** | FastAPI (async) |
+| **Валидация** | Pydantic v2 |
+| **AI-провайдер** | Agnes AI (OpenAI-совместимый) + rule-based fallback |
+| **Шаблонизатор** | Jinja2 (HTML-письма) |
+| **Хранение** | JSON-файлы (контакты, статистика, rate limit) |
+| **Тестирование** | pytest + httpx TestClient |
+| **Инфраструктура** | Docker / docker-compose |
 
-**Why FastAPI?** Native async support, automatic OpenAPI/Swagger docs via Pydantic, excellent performance, and built-in dependency injection — ideal for IO-bound workloads like AI calls and email dispatch.
+**Почему FastAPI?** Нативная асинхронность, автоматическая OpenAPI/Swagger документация через Pydantic, встроенный механизм Dependency Injection — идеально для IO-bound нагрузок (AI-запросы, отправка писем).
 
 ---
 
-## Architecture
+## Архитектура
 
 ```
 app/
-├── api/v1/routes/      # HTTP layer — only request parsing and response serialization
-├── schemas/             # Pydantic models for validation and serialization
-├── services/            # Business logic — orchestrates AI, email, and persistence
-├── repositories/        # Data access — abstracts file and SQLite storage
-├── ai/                  # AI strategies — Strategy pattern for provider switching
-├── middleware/           # Cross-cutting concerns — logging, rate limiting, correlation IDs
-├── core/                # Config, DI, exceptions, error handlers
-└── templates/           # Jinja2 email templates
+├── api/v1/routes/       # HTTP-слой — только парсинг запроса и сериализация ответа
+├── schemas/              # Pydantic-модели для валидации и сериализации
+├── services/             # Бизнес-логика — оркестрация AI, email, сохранения
+├── repositories/         # Доступ к данным — абстракция над JSON-файлами
+├── ai/                   # AI-стратегии — паттерн Strategy для смены провайдеров
+├── middleware/            # Сквозные задачи — логирование, rate limit, correlation ID
+├── core/                 # Конфиг, DI, исключения, обработчик ошибок
+└── templates/            # Jinja2-шаблоны писем
 ```
 
-### Design Patterns
+### Паттерны проектирования
 
-- **Layered Architecture**: Controllers → Services → Repositories (strict one-way dependency)
-- **Strategy Pattern**: AI providers interchangeable via `AIStrategy` base class
-- **Dependency Injection**: FastAPI `Depends()` for service wiring
-- **Background Tasks**: Email dispatch via FastAPI `BackgroundTasks` (non-blocking)
-- **Sliding Window Log**: Rate limiting algorithm (not a simple counter)
+- **Слоистая архитектура**: Routes → Services → Repositories (строгая однонаправленная зависимость)
+- **Strategy Pattern**: Провайдеры AI взаимозаменяемы через базовый класс `AIStrategy`
+- **Dependency Injection**: Провязка сервисов через FastAPI `Depends()`
+- **Background Tasks**: Email-рассылка через FastAPI `BackgroundTasks` (не блокирует ответ)
+- **Sliding Window Log**: Алгоритм rate limiting (честное скользящее окно, а не простой счётчик)
 
 ---
 
 ## API Endpoints
 
-### `POST /api/v1/contact`
-Submit a contact form with AI-powered analysis.
+### `POST /api/contact`
+Отправка формы обратной связи с AI-анализом.
 
-**Request:**
+**Запрос:**
 ```json
 {
-  "name": "John Doe",
-  "email": "john@example.com",
-  "phone": "+1234567890",
-  "comment": "Great portfolio! I'd like to discuss a project."
+  "name": "Иван Петров",
+  "email": "ivan@example.com",
+  "phone": "+71234567890",
+  "comment": "Отличное портфолио! Хочу обсудить сотрудничество."
 }
 ```
 
-**Response (201):**
+**Успешный ответ (201):**
 ```json
 {
   "success": true,
-  "message": "Your message has been received...",
+  "message": "Ваше сообщение получено. Мы свяжемся с вами в ближайшее время.",
   "correlation_id": "uuid",
   "ai_analysis": {
     "sentiment": "positive",
     "sentiment_score": 0.7,
     "request_type": "collaboration",
-    "suggested_reply": "Dear John,..."
+    "suggested_reply": "Dear Иван Петров,..."
   }
 }
 ```
 
-**Error responses:**
-| Status | Meaning |
+**Коды ошибок:**
+| Статус | Описание |
 |---|---|
-| 400 | Validation error (missing/invalid fields) |
-| 429 | Rate limit exceeded |
-| 502 | External service unavailable (AI or email) |
+| 422 | Ошибка валидации (некорректные поля) |
+| 429 | Превышен лимит запросов (rate limit) |
+| 502 | Внешний сервис недоступен (AI) |
 
-### `GET /api/v1/health`
+### `GET /api/health`
 ```json
 { "status": "healthy", "version": "1.0.0" }
 ```
 
-### `GET /api/v1/metrics`
+### `GET /api/metrics`
 ```json
 { "stats": { "total_contacts": 42, "type_collaboration": 10 } }
 ```
 
-### Interactive Docs
+### Версионированные эндпоинты
+Все эндпоинты также доступны с префиксом `/api/v1/`:
+- `POST /api/v1/contact`
+- `GET /api/v1/health`
+- `GET /api/v1/metrics`
+
+### Интерактивная документация
 - Swagger: `/api/docs`
 - ReDoc: `/api/redoc`
 
 ---
 
-## AI Integration
+## AI-интеграция
 
-### Pipeline (3-in-1 analysis)
+### Конвейер анализа (3 шага в одном запросе)
 
-1. **Sentiment Analysis** — classifies tone as positive/neutral/negative
-2. **Request Classification** — categorizes as technical_question / collaboration / bug_report / feature_request / general
-3. **Reply Generation** — produces a professional contextual response
+1. **Анализ тональности** — определение тона сообщения (позитив/нейтрал/негатив)
+2. **Классификация типа запроса** — технический вопрос / коллаборация / баг / предложение / общее
+3. **Генерация ответа** — профессиональный контекстный ответ
 
-### Provider Chain
+### Цепочка провайдеров
 
 ```
-Agnes AI (OpenAI-compatible API)
-    └─ on failure → Rule-based classifier (keyword matching + templates)
+Agnes AI (OpenAI-совместимый API)
+    └─ при ошибке → Rule-based классификатор (ключевые слова + шаблоны)
+        └─ при ошибке → жёсткая заглушка (neutral/general)
 ```
 
-The fallback is transparent: if the primary AI provider is unavailable or returns invalid JSON, the service degrades gracefully to a deterministic rule-based engine. The endpoint **never crashes** due to AI failure.
+Fallback прозрачен: если основной AI-провайдер недоступен или возвращает невалидный JSON, сервис плавно деградирует до детерминированного rule-based движка. Даже если rule-based упадёт — вернётся безопасная заглушка. Эндпоинт **никогда не падает** из-за ошибки AI.
 
-### Prompts Used
+### Используемые промпты
 
-**System prompt for Agnes AI:**
+**System prompt для Agnes AI:**
 ```
 You are a contact form analysis assistant. Analyze the user's message
 and return ONLY valid JSON with these fields:
@@ -130,65 +139,83 @@ and return ONLY valid JSON with these fields:
 Return ONLY the JSON object, no markdown, no code blocks.
 ```
 
-### What was AI-generated
+---
 
-- The entire `app/ai/agnes.py` strategy — prompt engineering and API integration
-- Email HTML templates — Jinja2 structure
-- Frontend `static/index.html` — form UI with JS validation
-- Test stubs for the rule-based classifier
-- 90% of the README (this file)
-- The rule-based fallback's keyword lists and reply templates
+## Валидация и обработка ошибок
 
-**Manually adjusted:**
-- Architecture decisions (layering, DI wiring)
-- Strategy Pattern interface (`AIStrategy` base class)
-- Error handling hierarchy and global handler
-- Rate limiter algorithm (sliding window log)
-- Middleware ordering and correlation ID propagation
-- All business logic in `ContactService`
+### Валидация входных данных
+
+Поля проходят многоуровневую проверку:
+
+| Поле | Правила валидации |
+|---|---|
+| `name` | 2–100 символов, обрезка пробелов |
+| `email` | Проверка формата через Pydantic `EmailStr` |
+| `phone` | 10–20 символов, разрешены `+`, цифры, пробелы, тире, скобки; минимум 10 цифр |
+| `comment` | 10–2000 символов, обрезка пробелов |
+
+### Иерархия ошибок
+
+```
+AppError (базовый)
+├── ValidationError (422)
+├── NotFoundError (404)
+├── RateLimitError (429)
+├── AIError (502)
+└── EmailError (502)
+```
+
+Глобальный обработчик перехватывает все исключения:
+- Кастомные `AppError` → соответствующий HTTP-статус с детальным сообщением
+- Необработанные исключения → 500 + логирование полного stack trace
+
+### Rate Limiting
+
+Алгоритм: **Sliding Window Log** — честное скользящее окно, которое не сбрасывается каждые N секунд, а непрерывно учитывает запросы внутри временного окна.
+
+- По умолчанию: 10 POST-запросов за 60 секунд
+- Ключ: IP-адрес клиента
+- Хранение: JSON-файл
+- При превышении возвращается `429 Too Many Requests` с заголовком `Retry-After`
 
 ---
 
-## Storage
+## Хранение данных
 
-| Data | Storage | Location |
+| Данные | Хранилище | Путь |
 |---|---|---|
-| Contact submissions | JSON file | `data/contacts.json` |
-| Rate limit records | JSON file | `data/rate_limit_log.json` |
-| Statistics | JSON file | `data/stats.json` |
-| Request logs | Text file | `logs/app.log` |
+| Обращения | JSON-файл | `data/contacts.json` |
+| Rate limit записи | JSON-файл | `data/rate_limit_log.json` |
+| Статистика | JSON-файл | `data/stats.json` |
+| Логи запросов | Текстовый файл | `logs/app.log` |
 
-All storage is file-based per the requirements. Architecture is abstracted via `Repository` classes, making migration to a database a single implementation change.
+Все хранилища абстрагированы через `Repository`-классы. Замена на любую БД (SQLite, PostgreSQL) — это реализация одного интерфейса без изменения сервисного слоя.
 
 ---
 
-## Getting Started
+## Запуск проекта
 
-### Prerequisites
-
-- Python 3.12+
-- (Optional) Docker + docker-compose
-
-### Local Development
+### Локально
 
 ```bash
-# 1. Clone and enter directory
+# Клонировать
 git clone https://github.com/lazmaksim2019-ops/BackendTestTask.git
 cd BackendTestTask
 
-# 2. Create virtual environment
+# Виртуальное окружение
 python -m venv .venv
 source .venv/bin/activate  # Linux/Mac
 .venv\Scripts\activate     # Windows
 
-# 3. Install dependencies
+# Зависимости
 pip install -r requirements.txt
 
-# 4. Configure environment
+# Настройка .env
 cp .env.example .env
-# Edit .env — at minimum set AI_API_KEY for AI features
+# Обязательно укажите AI_API_KEY для работы AI-функций
+# Agnes AI (бесплатно): https://agnes-ai.com
 
-# 5. Run
+# Запуск
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
@@ -196,25 +223,26 @@ uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 
 ```bash
 docker compose up -d
-# App available at http://localhost:8000
+# Приложение доступно на http://localhost:8000
 ```
 
-### Environment Variables
+### Переменные окружения
 
-| Variable | Required | Default | Description |
+| Переменная | Обязательная | По умолчанию | Описание |
 |---|---|---|---|
-| `AI_API_KEY` | No | — | Agnes AI API key. Falls back to rule-based if empty |
-| `AI_API_BASE_URL` | No | `https://apihub.agnes-ai.com/v1` | API endpoint |
-| `AI_MODEL` | No | `agnes-2.0-flash` | Model name |
-| `SMTP_HOST` | No | — | SMTP server. Emails logged to file if empty |
-| `SMTP_PORT` | No | `587` | SMTP port |
-| `SMTP_USER` | No | — | SMTP username |
-| `SMTP_PASS` | No | — | SMTP password |
-| `APP_OWNER_EMAIL` | No | `owner@example.com` | Notification recipient |
-| `RATE_LIMIT_REQUESTS` | No | `10` | Max POST requests per window |
-| `RATE_LIMIT_WINDOW_SECONDS` | No | `60` | Rate limit window |
+| `AI_API_KEY` | Нет | — | API-ключ Agnes AI. Если пусто — rule-based fallback |
+| `AI_API_BASE_URL` | Нет | `https://apihub.agnes-ai.com/v1` | URL API |
+| `AI_MODEL` | Нет | `agnes-2.0-flash` | Название модели |
+| `SMTP_HOST` | Нет | — | SMTP-сервер. Если пусто — письма пишутся в лог |
+| `SMTP_PORT` | Нет | `587` | Порт SMTP |
+| `SMTP_USER` | Нет | — | Пользователь SMTP |
+| `SMTP_PASS` | Нет | — | Пароль SMTP |
+| `APP_OWNER_EMAIL` | Нет | `owner@example.com` | Email владельца для уведомлений |
+| `CORS_ORIGINS` | Нет | `http://localhost:3000,...` | Разрешённые CORS-источники |
+| `RATE_LIMIT_REQUESTS` | Нет | `10` | Макс. POST-запросов за окно |
+| `RATE_LIMIT_WINDOW_SECONDS` | Нет | `60` | Окно rate limit |
 
-### Testing
+### Тестирование
 
 ```bash
 pytest -v
@@ -223,45 +251,87 @@ pytest -v
 ### Makefile
 
 ```bash
-make dev      # Run dev server with auto-reload
-make test     # Run tests
-make clean    # Clean cache files
-make docker-up   # Start via docker-compose
+make dev        # Запуск dev-сервера с авто-перезагрузкой
+make test       # Запуск тестов
+make clean      # Очистка кеша
+make docker-up  # Запуск через docker-compose
 ```
 
 ---
 
-## Example Requests (curl)
+## Примеры запросов (curl)
 
 ```bash
-# Submit contact
-curl -X POST http://localhost:8000/api/v1/contact \
+# Отправить обращение
+curl -X POST http://localhost:8000/api/contact \
   -H "Content-Type: application/json" \
   -d '{
-    "name": "John Doe",
-    "email": "john@example.com",
-    "phone": "+1234567890",
-    "comment": "Great work! Would love to collaborate."
+    "name": "Иван Петров",
+    "email": "ivan@example.com",
+    "phone": "+71234567890",
+    "comment": "Отличная работа! Хочу предложить сотрудничество."
   }'
 
-# Health check
-curl http://localhost:8000/api/v1/health
+# Проверка здоровья
+curl http://localhost:8000/api/health
 
-# Metrics
-curl http://localhost:8000/api/v1/metrics
+# Статистика
+curl http://localhost:8000/api/metrics
 ```
 
 ---
 
-## Deployment
+## Email-уведомления
 
-The app is Docker-ready. Deploy to Railway / Render / AnyHost:
+- **Шаблоны**: Jinja2 с автоэкранированием HTML
+- **Отправка**: Асинхронно через `BackgroundTasks` (не блокирует ответ)
+- **Два письма**: владельцу сайта + копия пользователю
+- **SMTP**: через `aiosmtplib` с STARTTLS
+- **Fallback**: если SMTP не настроен — письмо логируется в файл
+
+---
+
+## Что сделано с помощью AI
+
+**Сгенерировано AI:**
+- `app/ai/agnes.py` — интеграция с Agnes AI, промпт-инжиниринг
+- Email-шаблоны (HTML)
+- Фронтенд `static/index.html` — форма с JS-валидацией
+- Тесты rule-based классификатора
+- Большая часть README
+- Keyword-списки и шаблоны ответов для rule-based fallback
+
+**Написано вручную:**
+- Архитектурные решения (слои, DI, связи между модулями)
+- Интерфейс `AIStrategy` и паттерн Strategy
+- Иерархия исключений и глобальный error handler
+- Алгоритм Sliding Window Log для rate limiter
+- Порядок middleware и propagation correlation ID
+- Бизнес-логика `ContactService`
+- Все правки после код-ревью (эта версия)
+
+---
+
+## Деплой
+
+Приложение готово к деплою на Render / Railway / AnyHost:
 
 ```bash
-# Build and push
-docker build -t backend-landing .
-docker tag backend-landing registry.railway.app/your-project/backend-landing
-docker push ...
+# 1. Запушить в GitHub
+git push origin master
 
-# Or use Render's Blueprint with docker-compose.yml
+# 2. На Render: New + Web Service
+#    - Repository: https://github.com/lazmaksim2019-ops/BackendTestTask
+#    - Start Command: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+#    - Добавить переменные окружения из .env.example
+
+# 3. Или через Docker:
+docker build -t backend-landing .
+docker push ...
 ```
+
+---
+
+## Лицензия
+
+MIT

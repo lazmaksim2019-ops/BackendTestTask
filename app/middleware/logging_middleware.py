@@ -11,17 +11,16 @@ logger = logging.getLogger("app.http")
 class RequestLoggingMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
         start = time.time()
-        body_bytes = await request.body()
         response = await call_next(request)
         elapsed = time.time() - start
 
         log_entry = {
             "correlation_id": getattr(request.state, "correlation_id", None),
             "method": request.method,
-            "path": str(request.url),
+            "path": request.url.path,
             "status": response.status_code,
             "duration_ms": round(elapsed * 1000, 2),
-            "body": body_bytes.decode("utf-8", errors="replace") if body_bytes else None,
+            "client_ip": request.client.host if request.client else None,
         }
 
         logger.info(json.dumps(log_entry, ensure_ascii=False))
