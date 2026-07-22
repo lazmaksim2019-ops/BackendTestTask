@@ -10,6 +10,7 @@ venv/
 
 # Data & Logs
 data/*.db
+data/*.db-journal
 data/*.json
 logs/*.log
 

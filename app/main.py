@@ -3,6 +3,7 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
+from app.core.database import init_db, get_db_path
 from app.core.error_handler import global_error_handler
 from app.middleware.correlation_id import CorrelationIDMiddleware
 from app.middleware.logging_middleware import RequestLoggingMiddleware, setup_file_logging
@@ -13,6 +14,7 @@ from app.api.v1.routes import contact, health, metrics
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     setup_file_logging(settings.logs_dir)
+    await init_db(get_db_path(settings.data_dir))
     yield
 
 

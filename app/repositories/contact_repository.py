@@ -1,31 +1,18 @@
-import json
-import aiofiles
-from pathlib import Path
+from app.core.database import get_connection
 from app.schemas.contact import ContactRequest
 
 
 class ContactRepository:
-    def __init__(self, data_dir: Path) -> None:
-        self._file = data_dir / "contacts.json"
-
     async def save(self, contact: ContactRequest, correlation_id: str) -> dict:
-        entry = contact.model_dump() | {
-            "correlation_id": correlation_id,
-        }
-        records = await self._read_all()
-        records.append(entry)
-        async with aiofiles.open(self._file, "w", encoding="utf-8") as f:
-            await f.write(json.dumps(records, ensure_ascii=False, indent=2))
-        return entry
-
-    async def _read_all(self) -> list:
-        try:
-            async with aiofiles.open(self._file, encoding="utf-8") as f:
-                content = await f.read()
-                return json.loads(content) if content else []
-        except (FileNotFoundError, json.JSONDecodeError):
-            return []
+        db = get_connection()
+        await db.execute(
+            "INSERT INTO contacts (name, email, phone, comment, correlation_id) VALUES (?, ?, ?, ?, ?)",
+            (contact.name, contact.email, contact.phone, contact.comment, correlation_id),
+        )
+        await db.commit()
+        return contact.model_dump() | {"correlation_id": correlation_id}
 
     async def count(self) -> int:
-        records = await self._read_all()
-        return len(records)
+        db = get_connection()
+        cursor = await db.execute_fetchall("SELECT COUNT(*) as cnt FROM contacts")
+        return cursor[0]["cnt"] if cursor else 0

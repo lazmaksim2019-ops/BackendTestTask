@@ -18,7 +18,7 @@ Backend-сервис для лендинг-презентации разрабо
 | **Валидация** | Pydantic v2 |
 | **AI-провайдер** | Agnes AI (OpenAI-совместимый) + rule-based fallback |
 | **Шаблонизатор** | Jinja2 (HTML-письма) |
-| **Хранение** | JSON-файлы (контакты, статистика, rate limit) |
+| **Хранение** | SQLite (контакты, статистика) + JSON-файлы (rate limit) |
 | **Тестирование** | pytest + httpx TestClient |
 | **Инфраструктура** | Docker / docker-compose |
 
@@ -189,12 +189,12 @@ AppError (базовый)
 
 | Данные | Хранилище | Путь |
 |---|---|---|
-| Обращения | JSON-файл | `data/contacts.json` |
+| Обращения | SQLite | `data/app.db` (таблица `contacts`) |
+| Статистика | SQLite | `data/app.db` (таблица `stats`) |
 | Rate limit записи | JSON-файл | `data/rate_limit_log.json` |
-| Статистика | JSON-файл | `data/stats.json` |
 | Логи запросов | Текстовый файл | `logs/app.log` |
 
-Все хранилища абстрагированы через `Repository`-классы. Замена на любую БД (SQLite, PostgreSQL) — это реализация одного интерфейса без изменения сервисного слоя.
+**Почему SQLite?** Нулевая конфигурация, не требует отдельного сервера, идеально для демо-проекта. Таблицы создаются автоматически при старте приложения. Схема включает две таблицы: `contacts` (id, name, email, phone, comment, correlation_id, created_at) и `stats` (key, value) с `UPSERT`-логикой через `ON CONFLICT DO UPDATE`. Все хранилища абстрагированы через `Repository`-классы — замена на PostgreSQL требует только реализации другого репозитория без изменения сервисного слоя.
 
 ---
 

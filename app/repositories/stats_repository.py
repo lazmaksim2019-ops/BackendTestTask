@@ -1,26 +1,19 @@
-import json
-import aiofiles
-from pathlib import Path
+from app.core.database import get_connection
 
 
 class StatsRepository:
-    def __init__(self, data_dir: Path) -> None:
-        self._file = data_dir / "stats.json"
-
     async def increment(self, key: str) -> dict:
-        stats = await self._read_all()
-        stats[key] = stats.get(key, 0) + 1
-        async with aiofiles.open(self._file, "w", encoding="utf-8") as f:
-            await f.write(json.dumps(stats, ensure_ascii=False, indent=2))
-        return stats
+        db = get_connection()
+        await db.execute(
+            "INSERT INTO stats (key, value) VALUES (?, 1) ON CONFLICT(key) DO UPDATE SET value = value + 1",
+            (key,),
+        )
+        await db.commit()
+
+        cursor = await db.execute_fetchall("SELECT key, value FROM stats")
+        return {row["key"]: row["value"] for row in cursor}
 
     async def get_all(self) -> dict:
-        return await self._read_all()
-
-    async def _read_all(self) -> dict:
-        try:
-            async with aiofiles.open(self._file, encoding="utf-8") as f:
-                content = await f.read()
-                return json.loads(content) if content else {}
-        except (FileNotFoundError, json.JSONDecodeError):
-            return {}
+        db = get_connection()
+        cursor = await db.execute_fetchall("SELECT key, value FROM stats")
+        return {row["key"]: row["value"] for row in cursor}
