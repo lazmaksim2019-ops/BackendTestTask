@@ -6,12 +6,15 @@ dev:
 test:
 	pytest -v
 
+cov:
+	pytest --cov=app --cov-report=term-missing --cov-report=xml
+
 lint:
 	ruff check .
 	ruff format --check .
 
 clean:
-	rm -rf __pycache__ .pytest_cache
+	rm -rf __pycache__ .pytest_cache .coverage coverage.xml
 	find . -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true
 
 docker-build:

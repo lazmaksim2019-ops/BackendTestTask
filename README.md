@@ -1,5 +1,8 @@
 # Backend Developer Landing API
 
+![CI](https://github.com/lazmaksim2019-ops/BackendTestTask/actions/workflows/ci.yml/badge.svg?branch=master)
+[![codecov](https://codecov.io/gh/lazmaksim2019-ops/BackendTestTask/branch/master/graph/badge.svg)](https://codecov.io/gh/lazmaksim2019-ops/BackendTestTask)
+
 Backend-сервис для лендинг-презентации разработчика с AI-интеграцией, email-уведомлениями, rate limiting и структурированным логированием.
 
 Живое демо: [ссылка на Render после деплоя]
@@ -247,16 +250,18 @@ docker compose up -d
 ### Тестирование
 
 ```bash
-pytest -v
+pytest -v                # без покрытия
+pytest --cov=app -v      # с отчётом о покрытии
 ```
 
 ### Makefile
 
 ```bash
-make dev        # Запуск dev-сервера с авто-перезагрузкой
-make test       # Запуск тестов
-make clean      # Очистка кеша
-make docker-up  # Запуск через docker-compose
+make dev      # Запуск dev-сервера с авто-перезагрузкой
+make test     # Запуск тестов
+make cov      # Тесты с отчётом о покрытии
+make clean    # Очистка кеша
+make docker-up   # Запуск через docker-compose
 ```
 
 ---
