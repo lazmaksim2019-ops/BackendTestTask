@@ -1,169 +1,404 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Contact Me</title>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f172a; color: #e2e8f0; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
-    .card { background: #1e293b; border-radius: 16px; padding: 40px; width: 100%; max-width: 520px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); }
-    h1 { font-size: 24px; margin-bottom: 8px; }
-    .subtitle { color: #94a3b8; margin-bottom: 28px; font-size: 14px; }
-    .form-group { margin-bottom: 18px; }
-    label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: #cbd5e1; }
-    input, textarea { width: 100%; padding: 10px 14px; background: #0f172a; border: 1px solid #334155; border-radius: 8px; color: #e2e8f0; font-size: 14px; transition: border-color 0.2s; }
-    input:focus, textarea:focus { outline: none; border-color: #3b82f6; }
-    textarea { resize: vertical; min-height: 100px; }
-    button { width: 100%; padding: 12px; background: #3b82f6; color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
-    button:hover { background: #2563eb; }
-    button:disabled { opacity: 0.6; cursor: not-allowed; }
-    .error { color: #f87171; font-size: 12px; margin-top: 4px; display: none; }
-    .result { margin-top: 24px; padding: 16px; border-radius: 8px; display: none; }
-    .result.success { background: #064e3b; border: 1px solid #059669; display: block; }
-    .result.error { background: #450a0a; border: 1px solid #dc2626; display: block; }
-    .result h3 { font-size: 15px; margin-bottom: 8px; }
-    .result p { font-size: 13px; color: #94a3b8; }
-    .ai-tag { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; margin: 4px 4px 4px 0; }
-    .ai-tag.positive { background: #064e3b; color: #6ee7b7; }
-    .ai-tag.neutral { background: #1e3a5f; color: #93c5fd; }
-    .ai-tag.negative { background: #450a0a; color: #fca5a5; }
-    .spinner { display: none; width: 18px; height: 18px; border: 2px solid #475569; border-top-color: #3b82f6; border-radius: 50%; animation: spin 0.6s linear infinite; margin: 0 auto; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .btn-content { display: flex; align-items: center; justify-content: center; gap: 8px; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Связаться с нами</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+    padding: 20px;
+  }
+  .card {
+    width: 100%;
+    max-width: 520px;
+    background: rgba(255,255,255,0.06);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 24px;
+    padding: 40px 36px;
+    box-shadow: 0 25px 60px rgba(0,0,0,0.5);
+    transition: transform 0.3s ease;
+  }
+  .card:hover { transform: translateY(-2px); }
+  .logo {
+    text-align: center;
+    margin-bottom: 8px;
+  }
+  .logo-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px; height: 56px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    font-size: 26px;
+    color: #fff;
+    margin-bottom: 12px;
+  }
+  h1 {
+    text-align: center;
+    color: #fff;
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .subtitle {
+    text-align: center;
+    color: rgba(255,255,255,0.55);
+    font-size: 14px;
+    margin-bottom: 28px;
+  }
+  .form-group {
+    margin-bottom: 20px;
+  }
+  label {
+    display: block;
+    color: rgba(255,255,255,0.8);
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 6px;
+    letter-spacing: 0.3px;
+  }
+  .field-error {
+    color: #ff6b6b;
+    font-size: 12px;
+    margin-top: 4px;
+    display: none;
+  }
+  .field-error.visible { display: block; }
+  .input-wrap {
+    position: relative;
+  }
+  input, textarea {
+    width: 100%;
+    padding: 12px 16px;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 12px;
+    color: #fff;
+    font-size: 15px;
+    font-family: inherit;
+    transition: border-color 0.25s, background 0.25s;
+    outline: none;
+  }
+  input::placeholder, textarea::placeholder { color: rgba(255,255,255,0.3); }
+  input:focus, textarea:focus {
+    border-color: #667eea;
+    background: rgba(255,255,255,0.1);
+  }
+  input.error, textarea.error { border-color: #ff6b6b; }
+  textarea { min-height: 100px; resize: vertical; }
+  .submit-btn {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: #fff;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.25s, transform 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 4px;
+  }
+  .submit-btn:hover { opacity: 0.9; }
+  .submit-btn:active { transform: scale(0.98); }
+  .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+  .spinner {
+    width: 18px; height: 18px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+    display: none;
+  }
+  .submit-btn.loading .spinner { display: inline-block; }
+  .submit-btn.loading .btn-text { display: none; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .alert {
+    padding: 14px 16px;
+    border-radius: 12px;
+    font-size: 14px;
+    margin-bottom: 20px;
+    display: none;
+    line-height: 1.5;
+  }
+  .alert.visible { display: block; }
+  .alert-error {
+    background: rgba(255,107,107,0.15);
+    border: 1px solid rgba(255,107,107,0.3);
+    color: #ff8a8a;
+  }
+  .alert-success {
+    background: rgba(72,199,142,0.15);
+    border: 1px solid rgba(72,199,142,0.3);
+    color: #6fcf97;
+  }
+  .success-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 64px; height: 64px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #48c78e, #3bd671);
+    font-size: 30px;
+    color: #fff;
+    margin: 0 auto 16px;
+  }
+  .success-state { display: none; text-align: center; padding: 20px 0; }
+  .success-state.visible { display: block; }
+  .form-state { display: block; }
+  .form-state.hidden { display: none; }
+  .success-title {
+    color: #fff;
+    font-size: 22px;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+  .success-desc {
+    color: rgba(255,255,255,0.6);
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  .back-link {
+    display: inline-block;
+    margin-top: 20px;
+    color: rgba(255,255,255,0.5);
+    font-size: 13px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .back-link:hover { color: rgba(255,255,255,0.8); }
+  @media (max-width: 480px) {
+    .card { padding: 28px 20px; }
+    h1 { font-size: 20px; }
+  }
+</style>
 </head>
 <body>
-  <div class="card">
-    <h1>Get in Touch</h1>
-    <p class="subtitle">Send me a message — I'll reply within 24 hours</p>
 
-    <form id="contactForm">
+<div class="card">
+  <div class="logo">
+    <div class="logo-icon">&#9993;</div>
+  </div>
+
+  <div class="form-state" id="formState">
+    <h1>Связаться с нами</h1>
+    <p class="subtitle">Заполните форму, и мы ответим в ближайшее время</p>
+
+    <div class="alert alert-error" id="formError"></div>
+
+    <form id="contactForm" novalidate>
       <div class="form-group">
-        <label for="name">Name</label>
-        <input type="text" id="name" required minlength="1" maxlength="100">
-        <div class="error" id="nameError">Name is required</div>
+        <label for="name">Имя</label>
+        <div class="input-wrap">
+          <input type="text" id="name" name="name" placeholder="Ваше имя" required>
+        </div>
+        <div class="field-error" id="nameError"></div>
       </div>
 
       <div class="form-group">
         <label for="email">Email</label>
-        <input type="email" id="email" required>
-        <div class="error" id="emailError">Valid email is required</div>
+        <div class="input-wrap">
+          <input type="email" id="email" name="email" placeholder="your@email.com" required>
+        </div>
+        <div class="field-error" id="emailError"></div>
       </div>
 
       <div class="form-group">
-        <label for="phone">Phone</label>
-        <input type="text" id="phone" required minlength="5" maxlength="20">
-        <div class="error" id="phoneError">Phone is required</div>
+        <label for="phone">Телефон</label>
+        <div class="input-wrap">
+          <input type="tel" id="phone" name="phone" placeholder="+7 (999) 123-45-67" required>
+        </div>
+        <div class="field-error" id="phoneError"></div>
       </div>
 
       <div class="form-group">
-        <label for="comment">Message</label>
-        <textarea id="comment" required minlength="1" maxlength="2000"></textarea>
-        <div class="error" id="commentError">Message is required</div>
+        <label for="comment">Сообщение</label>
+        <div class="input-wrap">
+          <textarea id="comment" name="comment" placeholder="Ваше сообщение (не менее 10 символов)" required></textarea>
+        </div>
+        <div class="field-error" id="commentError"></div>
       </div>
 
-      <button type="submit">
-        <span class="btn-content">
-          <span id="btnText">Send Message</span>
-          <span class="spinner" id="spinner"></span>
-        </span>
+      <button type="submit" class="submit-btn" id="submitBtn">
+        <span class="spinner"></span>
+        <span class="btn-text">Отправить</span>
       </button>
     </form>
-
-    <div class="result" id="result">
-      <h3 id="resultTitle"></h3>
-      <p id="resultMessage"></p>
-      <div id="aiAnalysis" style="margin-top: 12px;"></div>
-    </div>
   </div>
 
-  <script>
-    const form = document.getElementById('contactForm');
-    const result = document.getElementById('result');
-    const resultTitle = document.getElementById('resultTitle');
-    const resultMessage = document.getElementById('resultMessage');
-    const aiAnalysis = document.getElementById('aiAnalysis');
-    const btnText = document.getElementById('btnText');
-    const spinner = document.getElementById('spinner');
-    const btn = form.querySelector('button');
+  <div class="success-state" id="successState">
+    <div class="success-icon">&#10003;</div>
+    <div class="success-title">Спасибо!</div>
+    <div class="success-desc" id="successMessage">
+      Ваше сообщение получено. Мы свяжемся с вами в ближайшее время.
+    </div>
+    <a class="back-link" onclick="resetForm()">&larr; Отправить ещё</a>
+  </div>
+</div>
 
-    function validateField(id, errorId) {
-      const field = document.getElementById(id);
-      const error = document.getElementById(errorId);
-      if (!field.checkValidity()) {
-        error.style.display = 'block';
-        field.style.borderColor = '#dc2626';
-        return false;
+<script>
+const API_URL = "/api/contact";
+const form = document.getElementById("contactForm");
+const formState = document.getElementById("formState");
+const successState = document.getElementById("successState");
+const submitBtn = document.getElementById("submitBtn");
+const formError = document.getElementById("formError");
+
+function getField(id) { return document.getElementById(id); }
+function getErrorEl(id) { return document.getElementById(id + "Error"); }
+
+function clearErrors() {
+  formError.classList.remove("visible");
+  formError.textContent = "";
+  ["name", "email", "phone", "comment"].forEach(function(f) {
+    getField(f).classList.remove("error");
+    getErrorEl(f).classList.remove("visible");
+    getErrorEl(f).textContent = "";
+  });
+}
+
+function showFieldError(field, msg) {
+  const el = getField(field);
+  const errEl = getErrorEl(field);
+  if (el && errEl) {
+    el.classList.add("error");
+    errEl.textContent = msg;
+    errEl.classList.add("visible");
+  }
+}
+
+function showFormError(msg) {
+  formError.textContent = msg;
+  formError.classList.add("visible");
+}
+
+function setLoading(loading) {
+  if (loading) {
+    submitBtn.classList.add("loading");
+    submitBtn.disabled = true;
+  } else {
+    submitBtn.classList.remove("loading");
+    submitBtn.disabled = false;
+  }
+}
+
+function resetForm() {
+  form.reset();
+  clearErrors();
+  formState.classList.remove("hidden");
+  successState.classList.remove("visible");
+}
+
+const FIELD_LABELS = { name: "Имя", email: "Email", phone: "Телефон", comment: "Сообщение" };
+
+form.addEventListener("submit", async function(e) {
+  e.preventDefault();
+  clearErrors();
+
+  const name = getField("name").value.trim();
+  const email = getField("email").value.trim();
+  const phone = getField("phone").value.trim();
+  const comment = getField("comment").value.trim();
+
+  if (!name || name.length < 2) {
+    showFieldError("name", "Имя должно содержать минимум 2 символа");
+    return;
+  }
+  if (!email) {
+    showFieldError("email", "Укажите email");
+    return;
+  }
+  if (!phone || phone.replace(/\D/g, "").length < 10) {
+    showFieldError("phone", "Телефон должен содержать минимум 10 цифр");
+    return;
+  }
+  if (!comment || comment.length < 10) {
+    showFieldError("comment", "Сообщение должно содержать минимум 10 символов");
+    return;
+  }
+
+  setLoading(true);
+
+  try {
+    const res = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, email, phone, comment }),
+    });
+
+    if (!res.ok) {
+      let body;
+      try { body = await res.json(); } catch (_) { body = null; }
+
+      if (body && Array.isArray(body.detail)) {
+        body.detail.forEach(function(err) {
+          const loc = err.loc || [];
+          const field = loc[loc.length - 1];
+          if (field && FIELD_LABELS[field]) {
+            showFieldError(field, translateError(err.msg, field));
+          }
+        });
+        const hasFieldErr = body.detail.some(function(err) {
+          const loc = err.loc || [];
+          return loc[loc.length - 1] && FIELD_LABELS[loc[loc.length - 1]];
+        });
+        if (!hasFieldErr) {
+          showFormError("Проверьте правильность заполнения полей");
+        }
+      } else if (body && body.detail) {
+        showFormError(body.detail);
+      } else {
+        showFormError("Произошла ошибка. Попробуйте позже.");
       }
-      error.style.display = 'none';
-      field.style.borderColor = '#334155';
-      return true;
+      setLoading(false);
+      return;
     }
 
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
+    const data = await res.json();
+    formState.classList.add("hidden");
+    if (data.message) {
+      document.getElementById("successMessage").textContent = data.message;
+    }
+    successState.classList.add("visible");
+  } catch (err) {
+    showFormError("Ошибка соединения. Проверьте подключение к интернету.");
+  }
 
-      const valid = ['name', 'email', 'phone', 'comment'].every(f => validateField(f, f + 'Error'));
-      if (!valid) return;
+  setLoading(false);
+});
 
-      btn.disabled = true;
-      btnText.style.display = 'none';
-      spinner.style.display = 'block';
-      result.className = 'result';
-
-      try {
-        const res = await fetch('/api/v1/contact', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            name: document.getElementById('name').value,
-            email: document.getElementById('email').value,
-            phone: document.getElementById('phone').value,
-            comment: document.getElementById('comment').value,
-          }),
-        });
-
-        const data = await res.json();
-
-        if (res.ok) {
-          result.className = 'result success';
-          resultTitle.textContent = 'Message Sent!';
-          resultMessage.textContent = data.message;
-
-          if (data.ai_analysis) {
-            const ai = data.ai_analysis;
-            const sentimentClass = ai.sentiment || 'neutral';
-            aiAnalysis.innerHTML = `
-              <hr style="border-color: #334155; margin: 12px 0;">
-              <p style="font-size: 12px; color: #94a3b8; margin-bottom: 6px;">AI Analysis</p>
-              <span class="ai-tag ${sentimentClass}">${ai.sentiment}</span>
-              <span class="ai-tag neutral">${ai.request_type}</span>
-              <p style="font-size: 12px; color: #94a3b8; margin-top: 8px;">Score: ${ai.sentiment_score}</p>
-            `;
-          }
-          form.reset();
-        } else {
-          result.className = 'result error';
-          resultTitle.textContent = 'Error';
-          resultMessage.textContent = data.detail || 'Something went wrong. Please try again.';
-          aiAnalysis.innerHTML = '';
-        }
-      } catch (err) {
-        result.className = 'result error';
-        resultTitle.textContent = 'Network Error';
-        resultMessage.textContent = 'Could not reach the server. Please try again.';
-        aiAnalysis.innerHTML = '';
-      }
-
-      btn.disabled = false;
-      btnText.style.display = 'inline';
-      spinner.style.display = 'none';
-    });
-
-    ['name', 'email', 'phone', 'comment'].forEach(f => {
-      document.getElementById(f).addEventListener('input', () => validateField(f, f + 'Error'));
-    });
-  </script>
+function translateError(msg, field) {
+  const common = {
+    "String should have at least": "Минимальная длина",
+    "String should have at most": "Максимальная длина",
+    "value is not a valid email address": "Укажите корректный email",
+    "Invalid phone format": "Неверный формат телефона",
+    "Phone must contain at least 10 digits": "Телефон должен содержать минимум 10 цифр",
+    "Name is too short": "Имя слишком короткое",
+    "Comment is too short": "Слишком короткое сообщение",
+  };
+  for (const key in common) {
+    if (msg.includes(key)) return common[key];
+  }
+  if (msg.includes("too short") || msg.includes("at least")) return "Слишком короткое значение";
+  if (msg.includes("too long") || msg.includes("at most")) return "Слишком длинное значение";
+  return "Некорректное поле \u00ab" + (FIELD_LABELS[field] || field) + "\u00bb";
+}
+</script>
 </body>
 </html>
