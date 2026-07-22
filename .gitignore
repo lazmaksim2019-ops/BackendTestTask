@@ -25,7 +25,6 @@ Thumbs.db
 # Coverage
 .coverage
 coverage.xml
-junit.xml
 
 # Docker
 .postgres-data/

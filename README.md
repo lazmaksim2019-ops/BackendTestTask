@@ -1,7 +1,6 @@
 # Backend Developer Landing API
 
 ![CI](https://github.com/lazmaksim2019-ops/BackendTestTask/actions/workflows/ci.yml/badge.svg?branch=master)
-[![codecov](https://codecov.io/gh/lazmaksim2019-ops/BackendTestTask/branch/master/graph/badge.svg)](https://codecov.io/gh/lazmaksim2019-ops/BackendTestTask)
 
 Backend-сервис для лендинг-презентации разработчика с AI-интеграцией, email-уведомлениями, rate limiting и структурированным логированием.
 
