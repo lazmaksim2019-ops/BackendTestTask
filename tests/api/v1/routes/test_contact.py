@@ -21,14 +21,14 @@ class TestContactEndpoint:
 
     def test_submit_contact_validation_error(self, client):
         response = client.post("/api/v1/contact", json={"name": ""})
-        assert response.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT
+        assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
 
     def test_submit_contact_missing_field(self, client):
         response = client.post(
             "/api/v1/contact",
             json={"name": "Test", "email": "invalid"},
         )
-        assert response.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT
+        assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
 
     def test_health_endpoint(self, client):
         response = client.get("/api/v1/health")
