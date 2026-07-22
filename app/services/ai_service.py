@@ -1,8 +1,11 @@
+import asyncio
 import logging
 from app.ai.base import AIStrategy
 from app.schemas.ai import AIAnalysisResult
 
 logger = logging.getLogger("app.ai")
+
+_AI_TIMEOUT = 5.0
 
 _DEFAULT_FALLBACK = AIAnalysisResult(
     sentiment="neutral",
@@ -18,7 +21,10 @@ class AIService:
 
     async def analyze(self, name: str, comment: str) -> AIAnalysisResult:
         try:
-            result = await self._strategy.analyze(name, comment)
+            result = await asyncio.wait_for(
+                self._strategy.analyze(name, comment),
+                timeout=_AI_TIMEOUT,
+            )
             logger.info("AI analysis successful: sentiment=%s type=%s", result.sentiment, result.request_type)
             return result
         except Exception as e:
