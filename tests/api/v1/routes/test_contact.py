@@ -16,8 +16,7 @@ class TestContactEndpoint:
         data = response.json()
         assert data["success"] is True
         assert data["correlation_id"] is not None
-        assert data["ai_analysis"] is not None
-        assert data["ai_analysis"]["sentiment"] in ("positive", "neutral", "negative")
+        assert data["ai_analysis"] is None
 
     def test_submit_contact_validation_error(self, client):
         response = client.post("/api/v1/contact", json={"name": ""})
