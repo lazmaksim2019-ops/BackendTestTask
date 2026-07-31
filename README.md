@@ -4,7 +4,7 @@
 
 Backend-сервис для лендинг-презентации разработчика с AI-интеграцией, email-уведомлениями, rate limiting и структурированным логированием.
 
-[![Живое демо](https://img.shields.io/badge/%D0%96%D0%B8%D0%B2%D0%BE%D0%B5_%D0%B4%D0%B5%D0%BC%D0%BE-6B3FA0?style=for-the-badge&logo=render&logoColor=white)](https://backendtesttask-3px9.onrender.com)
+[![Живое демо](https://img.shields.io/badge/%D0%96%D0%B8%D0%B2%D0%BE%D0%B5_%D0%B4%D0%B5%D0%BC%D0%BE-6B3FA0?style=for-the-badge&logo=render&logoColor=white)](https://backend-test-task.vercel.app/)
 
 ---
 
